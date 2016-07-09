@@ -5,7 +5,9 @@ import {
   View,
   StyleSheet
 } from 'react-native';
+import Parse from 'parse/react-native';
 import HoleMap from './holeMap';
+import HoleObject from '../../objects/holeObject';
 
 const THUMB_URLS = [
   require('../../../img/1a.jpg')
@@ -16,24 +18,34 @@ export default class Hole extends Component {
     super();
 
     this.state = {
-      hole: {
-        coordinates: [
-          { latitude: -33.899034, longitude: 151.232875 },
-          { latitude: -33.898697, longitude: 151.232929 },
-          { latitude: -33.898510, longitude: 151.232842 },
-          { latitude: -33.898439, longitude: 151.232748 },
-          { latitude: -33.898436, longitude: 151.232597 }
-        ],
-        startText: 'Compass Dial',
-        endText: 'Last Palm Tree',
-        instructions: 'You must go to the right of all palm trees',
-        par: 3,
-        distance: '50m'
-      }
+      hole: null
     }
   }
 
+  _onHoleLoaded(hole) {
+    this.setState({
+      hole: hole.get("hole")
+    });
+  }
+
+  componentWillMount() {
+    var query = new Parse.Query(HoleObject);
+    query.get(this.props.id, {
+      success: (hole) => {
+        console.log(hole);
+        this._onHoleLoaded(hole)
+      },
+      error: (object, error) => {
+        console.log(object, error);
+      }
+    })
+  }
+
   render() {
+    if (!this.state.hole) {
+      return <Text>Loading...</Text>
+    }
+
     return (
       <View style={styles.container}>
         <View style={styles.mapContainer}>

@@ -2,37 +2,51 @@ import React, {Component} from 'react';
 import {
   ListView,
   StyleSheet,
-  View,
-  RecyclerViewBackedScrollView
+  Text,
+  View
 } from 'react-native';
-
+import Parse from 'parse/react-native';
 import HoleListItem from './holeListItem';
+import HoleObject from '../../objects/holeObject';
 
 export default class HoleList extends Component {
   constructor() {
     super();
 
+    this.state = {
+      dataSource: null
+    }
+
+    this._onHolesLoaded = this._onHolesLoaded.bind(this);
+    this._renderRow = this._renderRow.bind(this);
+  }
+
+  _onHolesLoaded(holes) {
     var ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2
     });
-    this.state = {
-      dataSource: ds.cloneWithRows([
-        {number: 1, par: 3, distance: '123m'},
-        {number: 2, par: 4, distance: '123m'},
-        {number: 3, par: 4, distance: '123m'},
-        {number: 4, par: 4, distance: '123m'},
-        {number: 5, par: 5, distance: '123m'},
-        {number: 6, par: 2, distance: '123m'},
-        {number: 7, par: 3, distance: '123m'},
-        {number: 8, par: 4, distance: '123m'},
-        {number: 9, par: 5, distance: '123m'},
-        {number: 10, par: 3, distance: '123m'},
-        {number: 11, par: 4, distance: '123m'},
-        {number: 12, par: 4, distance: '123m'}
-      ])
-    }
+    var holeArr = holes.map( (hole) => {
+      console.log(hole.id);
+      return {
+        id: hole.id,
+        hole: hole.get("hole")
+      }
+    });
+    this.setState({
+      dataSource: ds.cloneWithRows(holeArr)
+    });
+  }
 
-    this._renderRow = this._renderRow.bind(this);
+  componentWillMount() {
+    var query = new Parse.Query(HoleObject);
+    query.find({
+      success: (holes) => {
+        this._onHolesLoaded(holes)
+      },
+      error: (object, error) => {
+        console.log(object, error);
+      }
+    })
   }
 
   _renderSeparator(sectionId, rowId) {
@@ -41,18 +55,20 @@ export default class HoleList extends Component {
 
   _renderRow(rowData) {
     return <HoleListItem
-      key={rowData.number}
-      number={rowData.number}
-      par={rowData.par}
-      distance={rowData.distance}
+      key={rowData.hole.index}
+      id={rowData.id}
+      hole={rowData.hole}
       imgSource={THUMB_URLS[0]}
       navigator={this.props.navigator}
       route={this.props.route}
       />
   }
 
-  //renderScrollComponent={props => <RecyclerViewBackedScrollView {...props} />}
   render() {
+    if (!this.state.dataSource) {
+      return <Text>Loading...</Text>
+    }
+
     return (
       <ListView
         renderSeparator={this._renderSeparator}

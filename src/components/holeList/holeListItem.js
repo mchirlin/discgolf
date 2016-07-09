@@ -16,9 +16,8 @@ export default class HoleListItem extends Component {
 
   _onHoleListItemPress() {
     this.props.navigator.push({
-      name: 'hole',
-      holeNumber: this.props.number,
-      index: 1
+      id: this.props.id,
+      name: 'hole'
     });
   }
 
@@ -31,9 +30,9 @@ export default class HoleListItem extends Component {
         <View style={styles.container}>
           <Image style={styles.thumb} source={this.props.imgSource} />
           <View style={styles.infoContainer}>
-            <Text>This is hole #{this.props.number}</Text>
-            <Text>Par: {this.props.par}</Text>
-            <Text>Distance: {this.props.distance}</Text>
+            <Text>This is hole #{this.props.hole.index}</Text>
+            <Text>Par: {this.props.hole.par}</Text>
+            <Text>Distance: {this.props.hole.distance}</Text>
           </View>
         </View>
       </TouchableHighlight>

@@ -6,6 +6,7 @@ import {
 import NavigationBar from './components/common/navigationBar';
 import HoleList from './components/holeList/holeList';
 import Hole from './components/hole/hole';
+import Parse from 'parse/react-native';
 
 const ROUTES = {
   holeList: HoleList,
@@ -13,6 +14,12 @@ const ROUTES = {
 };
 
 export default class Main extends Component {
+  componentWillMount() {
+    Parse.initialize("discgolf");
+    Parse.clientKey= 'discgolf';
+    Parse.serverURL = 'https://discgolf-api.herokuapp.com/parse';
+  }
+
   _renderScene(route, navigator) {
     var Comp = ROUTES[route.name];
 
@@ -22,7 +29,7 @@ export default class Main extends Component {
       )
     } else {
       return (
-        <Hole route={route} navigator={navigator} number={route.holeNumber}/>
+        <Hole route={route} navigator={navigator} id={route.id}/>
       )
     }
   }
